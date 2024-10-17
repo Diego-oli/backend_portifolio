@@ -7,66 +7,66 @@ const porta = 3000;
 app.use(cors());
 app.use(express.json());
 
-let cartoes = [
+let cards = [
     {
-        nome: 'Tenis Barcelona',
+        nome: 'bolso biber',
         valor: 'R$59.70',
-        img: "https://th.bing.com/th/id/R.720c0e20b9a11f1849c7c7c87b373437?rik=gcjvH6x1SapnLw&pid=ImgRaw&r=0"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 2',
+        nome: 'bolso biber 2',
         valor: 'R$90.23',
-        img: "https://th.bing.com/th/id/OIP.zZcHBkUfwUmtek-sWpnjaAHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 3',
+        nome: 'bolso biber 3',
         valor: 'R$27.79',
-        img: "https://th.bing.com/th/id/OIP.9kvRZ7zLIEE2umY0x-g9QwHaHa?w=544&h=544&rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 4',
+        nome: 'bolso biber 4',
         valor: 'R$86.49',
-        img: "https://cdnv2.moovin.com.br/sandycalcados/imagens/produtos/original/tenis-nike-flyknit-max-85e744676043564192c692461cdb747f.jpg"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 5',
+        nome: 'bolso biber 5',
         valor: 'R$11.55',
-        img: "https://th.bing.com/th/id/OIP.Oe1oRos3_P7NZW5k8A6VqAAAAA?w=474&h=474&rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 6',
+        nome: 'bolso biber 6',
         valor: 'R$33.77',
-        img: "https://th.bing.com/th/id/OIP.X7wo2DnEcRJdI9oMPh2RMQHaHa?w=650&h=650&rs=1&pid=ImgDetMain0"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 7',
+        nome: 'bolso biber 7',
         valor: 'R$12.36',
-        img: "https://th.bing.com/th/id/OIP.oru-V2rGQt6PTXXuh2qFDgHaIq?w=850&h=995&rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 8',
+        nome: 'bolso biber 8',
         valor: 'R$38.80',
-        img: "https://th.bing.com/th/id/OIP.mODcPB1d4wGyUkxwD63-yQHaHa?w=2000&h=2000&rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 9',
+        nome: 'bolso biber 9',
         valor: 'R$14.87',
-        img: "https://th.bing.com/th/id/OIP.O5S1ytIVLkSa8ZuqsNOongHaHa?rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     },
     {
-        nome: 'CARTAO 10',
+        nome: 'bolso biber 10',
         valor: 'R$53.40',
-        img: "https://th.bing.com/th/id/OIP.O5S1ytIVLkSa8ZuqsNOongHaHa?rs=1&pid=ImgDetMain"
+        img: "https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg"
     }
 ];
 
 
-app.get('/cartoes', (req, res) => {
-    res.status(200).json({ cartoes });
+app.get('/cards', (req, res) => {
+    res.status(200).json({ cards });
     console.log('Cartões devolvidos com sucesso!');
 });
 
-app.post('/cartoes', (req, res) => {
+app.post('/cards', (req, res) => {
     const { nome, valor, img } = req.body;
 
     if (nome == null || nome === '') {
@@ -82,43 +82,43 @@ app.post('/cartoes', (req, res) => {
         console.log('Novo cartão não cadastrado, imagem invalida');
 
     } else {
-        cartoes.push({ nome: nome, valor: valor, img: img });
+        cards.push({ nome: nome, valor: valor, img: img });
         res.status(201).json({ mensagem: 'Cartão cadastrado com sucesso!!' });
         console.log('Novo cartão cadastrado!');
     }
 });
 
-app.delete('/cartoes', (req, res) => {
+app.delete('/cards', (req, res) => {
     const { cartao } = req.body;
 
-    if (!cartao || cartao < 0 || cartao > cartoes.length) {
+    if (!cartao || cartao < 0 || cartao > cards.length) {
         res.status(400).json({ mensagem: 'Cartão ' + cartao + ' não encontrado' });
         console.log('Cartão não deletado');
     } else {
-        cartoes.splice(cartao, 1);
+        cards.splice(cartao, 1);
         res.status(201).json({ mensagem: 'Cartão ' + cartao + ' deletado' });
         console.log('Cartão ' + cartao + ' deletado');
     }
 
 });
 
-app.put('/cartoes', (req, res) => {
+app.put('/cards', (req, res) => {
     const { nome, valor, img, id } = req.body;
-    if (!id || id < 0 || id > cartoes.length) {
+    if (!id || id < 0 || id > cards.length) {
         res.status(400).json({ mensagem: 'Cartão ' + id + ' não encontrado' });
         console.log('Cartão não atualizado, id invalido.');
 
     } else {
         if (nome == null || nome === '') {
-            nome = cartoes[id].nome;
+            nome = cards[id].nome;
         } 
         if (valor == null || valor === '' || isNaN(valor)) {
-            valor = cartoes[id].valor;
+            valor = cards[id].valor;
         } 
         if (img == null || img === '') {
-            img = cartoes[id].img;
+            img = cards[id].img;
         }
-        cartoes[id] = { nome: nome, valor: valor, img: img };
+        cards[id] = { nome: nome, valor: valor, img: img };
         res.status(201).json({ mensagem: 'Cartão ' + id + ' atualizado' });
         console.log('Cartão ' + id + ' atualizado');
     }
