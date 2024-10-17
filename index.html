@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Backend</title>
+</head>
+<body>
+    <h1>Teste do Backend</h1>
+
+    <!-- Formulário para GET -->
+    <h2>GET - Listar todas as falas</h2>
+    <button id="getFalas">Obter Falas</button>
+    <pre id="getResponse"></pre>
+
+    <!-- Formulário para POST -->
+    <h2>POST - Adicionar nova fala</h2>
+    <form id="postForm">
+        <label for="mensagemPost">Mensagem:</label>
+        <input type="text" id="mensagemPost" required>
+        <button type="submit">Adicionar Fala</button>
+    </form>
+    <p id="postResponse"></p>
+
+    <!-- Formulário para DELETE -->
+    <h2>DELETE - Deletar fala</h2>
+    <form id="deleteForm">
+        <label for="numeroDelete">Número da Fala:</label>
+        <input type="number" id="numeroDelete" required>
+        <button type="submit">Deletar Fala</button>
+    </form>
+    <p id="deleteResponse"></p>
+
+    <!-- Formulário para UPDATE (PUT) -->
+    <h2>UPDATE (PUT) - Atualizar fala</h2>
+    <form id="updateForm">
+        <label for="numeroUpdate">Número da Fala:</label>
+        <input type="number" id="numeroUpdate" required>
+        <label for="mensagemUpdate">Nova Mensagem:</label>
+        <input type="text" id="mensagemUpdate" required>
+        <button type="submit">Atualizar Fala</button>
+    </form>
+    <p id="updateResponse"></p>
+
+    <script>
+        // GET - Obter todas as falas
+        document.getElementById('getFalas').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/falas');
+                const data = await response.json();
+                document.getElementById('getResponse').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('getResponse').textContent = 'Erro ao buscar falas';
+                console.error('Erro:', error);
+            }
+        });
+
+        // POST - Adicionar nova fala
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const mensagem = document.getElementById('mensagemPost').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/falas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ mensagem }),
+                });
+
+                const data = await response.json();
+                document.getElementById('postResponse').textContent = data.mensagem;
+                document.getElementById('mensagemPost').value = ''; // Limpa o campo de texto após o envio
+            } catch (error) {
+                document.getElementById('postResponse').textContent = 'Erro ao adicionar fala';
+                console.error('Erro:', error);
+            }
+        });
+
+        // DELETE - Deletar fala
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const numero = document.getElementById('numeroDelete').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/falas', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ numero }),
+                });
+
+                const data = await response.json();
+                document.getElementById('deleteResponse').textContent = data.mensagem;
+                document.getElementById('numeroDelete').value = ''; // Limpa o campo de número
+            } catch (error) {
+                document.getElementById('deleteResponse').textContent = 'Erro ao deletar fala';
+                console.error('Erro:', error);
+            }
+        });
+
+        // UPDATE (PUT) - Atualizar fala
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const numero = document.getElementById('numeroUpdate').value;
+            const mensagem = document.getElementById('mensagemUpdate').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/falas', {
+                    method: 'PUT', // Correção aqui: PUT em vez de UPDATE
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ numero, mensagem }),
+                });
+
+                const data = await response.json();
+                document.getElementById('updateResponse').textContent = data.mensagem;
+                document.getElementById('numeroUpdate').value = ''; // Limpa o campo de número
+                document.getElementById('mensagemUpdate').value = ''; // Limpa o campo de mensagem
+            } catch (error) {
+                document.getElementById('updateResponse').textContent = 'Erro ao atualizar fala';
+                console.error('Erro:', error);
+            }
+        });
+    </script>
+</body>
+</html>
