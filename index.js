@@ -2,10 +2,14 @@ const cors = require('cors');
 const express = require('express');
 
 const app = express();
-const porta = 3000;
+const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
 
 let cards = [
     {
@@ -111,10 +115,10 @@ app.put('/cards', (req, res) => {
     } else {
         if (nome == null || nome === '') {
             nome = cards[id].nome;
-        } 
+        }
         if (valor == null || valor === '' || isNaN(valor)) {
             valor = cards[id].valor;
-        } 
+        }
         if (img == null || img === '') {
             img = cards[id].img;
         }
@@ -124,6 +128,45 @@ app.put('/cards', (req, res) => {
     }
 });
 
-app.listen(porta, () => {
-    console.log(`Servidor rodando na porta ${porta}`);
+//Controle de Login V
+
+app.use(bodyParser.json());
+
+const users = [];
+
+const JWT_SECRET = 'sua_chave_secreta';
+
+app.post('/register', async (req, res) => {
+    const { newUsername, newPassword } = req.body;
+
+    const userExists = users.find(user => user.username === newUsername);
+    if (userExists) {
+        return res.status(400).json({ message: 'Usuário já existe.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    users.push({ username: newUsername, password: hashedPassword });
+    res.status(201).json({ message: 'Usuário registrado com sucesso.' });
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    const user = users.find(user => user.username === username);
+    if (!user) {
+        return res.status(400).json({ message: 'Usuário ou senha inválidos.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: 'Usuário ou senha inválidos.' });
+    }
+
+    const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token });
+});
+
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}`);
 });
