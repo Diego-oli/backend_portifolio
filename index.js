@@ -33,9 +33,22 @@ app.use(express.json());
 
 // ];
 
-app.get('/cards', (req, res) => {
-  res.json({ cards });
+app.get('/cards', async (req, res) => {
+  try {
+      const response = await bd.collection('cards').get();
+      const cards = response.docs.map(doc => ({
+          id: doc.id, ...doc.data(),
+      }));
+      console.log(cards);
+      res.status(200).json({ cards });x
+      console.log('Cartões devolvidos com sucesso!');
+  } catch (e) {
+      console.log(e);
+      res.status(500).json({menssagem: 'Erro ' + e });
+      console.log('Erro ao buscar dados' + e);
+  }
 });
+
 
 app.post('/cards', (req, res) => {
   const { title, value, image } = req.body;
