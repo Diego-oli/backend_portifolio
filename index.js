@@ -25,13 +25,13 @@ admin.initializeApp({
 app.use(cors());
 app.use(express.json());
 
-let cards = [
-  { title: ' Cartão boso ', value: 'R$ 150,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
-  { title: 'Cartão bosonario', value: 'R$ 300,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
-  { title: 'Cartão bolsonaro', value: 'R$ 500,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
-  { title: 'Cartão lula', value: 'R$ 200,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
+// let cards = [
+//   { title: ' Cartão boso ', value: 'R$ 150,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
+//   { title: 'Cartão bosonario', value: 'R$ 300,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
+//   { title: 'Cartão bolsonaro', value: 'R$ 500,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
+//   { title: 'Cartão lula', value: 'R$ 200,00', image: 'https://hashtag.blogfolha.uol.com.br/files/2021/01/Eq-RgudXMAA3CnO.jpg' },
 
-];
+// ];
 
 app.get('/cards', (req, res) => {
   res.json({ cards });
