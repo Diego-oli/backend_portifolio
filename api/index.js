@@ -1,8 +1,7 @@
-const express = require('express');
-const app = express();
 const cors = require('cors');
-
+const express = require('express');
 const admin = require("firebase-admin");
+
 const serviceAccount = {
   type: "service_account",
   project_id: "bd-portifas",
@@ -21,83 +20,127 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
+const app = express();
 const db = admin.firestore();
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/cards', async (req, res) => {
+app.get('/cartoes', async (req, res) => {
   try {
-    const response = await db.collection('cards').get();
-    const cards = response.docs.map(doc => ({
+    const response = await db.collection('cartoes').get();
+    const cartoes = response.docs.map(doc => ({
       id: doc.id, ...doc.data(),
     }));
-    console.log(cards);
-    res.status(200).json({ cards });
+    console.log(cartoes);
+    res.status(200).json({ cartoes });
     console.log('Cartões devolvidos com sucesso!');
   } catch (e) {
     console.log(e);
-    res.status(500).json({ mensagem: 'Erro: ' + e });
+    res.status(500).json({ menssagem: 'Erro ' + e });
+    console.log('Erro ao buscar dados' + e);
   }
 });
 
-app.post('/cards', async (req, res) => {
-  const { title, value, image } = req.body;
-
-  if (!title) {
-    res.status(400).json({ mensagem: 'Título do cartão inválido' });
-    console.log('Novo cartão não cadastrado, título inválido');
-  } else if (!value) {
-    res.status(400).json({ mensagem: 'Valor do cartão inválido' });
-    console.log('Novo cartão não cadastrado, valor inválido');
-  } else if (!image) {
-    res.status(400).json({ mensagem: 'Imagem do cartão inválida' });
-    console.log('Novo cartão não cadastrado, imagem inválida');
+app.post('/cartoes', async (req, res) => {
+  const { lng, nome, img } = req.body;
+  if (!lng) {
+    res.status(400).json({ mensagem: 'Linguagem do cartão inválida!' });
+    console.log('Novo cartão não cadastrado, linguagem inválida!');
+  } else if (!nome) {
+    res.status(400).json({ mensagem: 'Nome do cartão inválido!' });
+    console.log('Novo cartão não cadastrado, nome inválido!');
+  } else if (!img) {
+    res.status(400).json({ mensagem: 'Imagem do cartão inválida!' });
+    console.log('Novo cartão não cadastrado, imagem inválida!');
   } else {
-    try { 
-      const novoCartaoRef = await db.collection('cards').add({
-        title,
-        value,
-        image,
+    try {
+      const novoCartaoRef = await db.collection('cartoes').add({
+        linguagem: lng, //propriedade diferente do nome da variavel
+        nome: nome,
+        img, //propriedade com mesmo nome da variavel
         criadoEm: admin.firestore.FieldValue.serverTimestamp()
       });
-      res.status(201).json({ id: novoCartaoRef.id, mensagem: 'Cartão criado com sucesso' });
+      res.status(201).json({
+        mensagem: 'Cartão cadastrado com sucesso!',
+        id: novoCartaoRef.id
+      });
+      console.log('Novo cartão cadastrado com ID:', novoCartaoRef.id);
+    } catch (error) {
+      console.error('Erro ao cadastrar cartão:', error);
+      res.status(500).json({ mensagem: 'Erro ao cadastrar cartão' });
+    }
+  }
+});
+
+app.delete('/cartoes', async (req, res) => {
+  const id = req.body.cartao;
+  if (!id) {
+    res.status(400).json({ mensagem: 'ID do cartão não fornecido' });
+    console.log('ID do cartão não fornecido');
+  } else {
+    try {
+      const cartaoRef = db.collection('cartoes').doc(id);
+      const doc = await cartaoRef.get();
+      if (!doc.exists) {
+        res.status(404).json({
+          mensagem: 'Cartão com ID '
+            + cartao + ' não encontrado'
+        });
+        console.log('Cartão não encontrado');
+      } else {
+        await cartaoRef.delete();
+        res.status(200).json({
+          mensagem: 'Cartão com ID '
+            + cartao + ' deletado'
+        });
+        console.log('Cartão com ID ' + cartao + ' deletado');
+      }
     } catch (e) {
-      res.status(500).json({ mensagem: 'Erro ao criar cartão: ' , e });
-      console.log('Novo cartão não cadastrado:'+ e);
+      console.error('Erro ao deletar cartão:', e);
+      res.status(500).json({ mensagem: 'Erro ao deletar cartão' });
     }
   }
 });
 
-app.put('/cards/:title', async (req, res) => {
-  const { title } = req.params;
-  const { value, image } = req.body;
-
-  try {
-    const cardSnapshot = await db.collection('cards').where('title', '==', title).get();
-    if (cardSnapshot.empty) {
-      return res.status(404).json({ mensagem: 'Cartão não encontrado' });
+app.put('/cartoes', async (req, res) => {
+  const { linguagem, nome, img, id } = req.body;
+  if (!id) {
+    res.status(400).json({ mensagem: 'ID do cartão não fornecido' });
+    console.log('Cartão não atualizado, ID inválido.');
+  } else {
+    try {
+      const cartaoRef = db.collection('cartoes').doc(id);
+      const doc = await cartaoRef.get();
+      if (!doc.exists) {
+        res.status(404).json({
+          mensagem: 'Cartão com ID '
+            + id + ' não encontrado'
+        });
+        console.log('Cartão não encontrado');
+      } else {
+        const dadosAtualizados = {};
+        if (linguagem) dadosAtualizados.linguagem = linguagem;
+        if (nome) dadosAtualizados.nome = nome;
+        if (img) dadosAtualizados.img = img;
+        await cartaoRef.update(dadosAtualizados);
+        res.status(200).json({
+          mensagem: 'Cartão com ID '
+            + id + ' atualizado'
+        });
+        console.log('Cartão com ID ' + id + ' atualizado');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar cartão:', error);
+      res.status(500).json({ mensagem: 'Erro ao atualizar cartão' });
     }
-
-    const cardDoc = cardSnapshot.docs[0];
-    await cardDoc.ref.update({ value, image });
-    res.status(200).json({ mensagem: 'Cartão atualizado com sucesso' });
-  } catch (e) {
-    res.status(500).json({ mensagem: 'Erro ao atualizar cartão: ' + e });
   }
 });
 
-app.delete('/cards/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.collection('cards').doc(id).delete();
-    res.status(204).json({ mensagem: 'Cartão deletado com sucesso' });
-  } catch (e) {
-    res.status(500).json({ mensagem: 'Erro ao deletar cartão: ' + e });
-  }
+module.exports = app;
+
+app.listen(3000, () => {
+  console.log('Servidor rodando na porta 3000');
 });
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Servidor em execução na porta ${port}`);
-});
+
