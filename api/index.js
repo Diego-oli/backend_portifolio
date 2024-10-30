@@ -31,14 +31,14 @@ app.use(express.json());
 // Modificação na rota raiz para retornar o vetor de cartões
 
 // Rota específica para obter os cartões (opcional, pois agora também está na rota '/')
-app.get('/cartoes', async (req, res) => {
+app.get('/cards', async (req, res) => {
   try {
-    const response = await db.collection('cartoes').get();
-    const cartoes = response.docs.map(doc => doc.data({
+    const response = await db.collection('cards').get();
+    const cards = response.docs.map(doc => doc.data({
       id: doc.id, ...doc.data()
     }));
-    console.log(cartoes);
-    res.status(200).json({ cartoes }); // Retorna o vetor de cartões
+    console.log(cards);
+    res.status(200).json({ cards }); // Retorna o vetor de cartões
     console.log('Cartões enviados'); // Mensagem de sucesso
   } catch (e) {
     console.log(e);
@@ -47,7 +47,7 @@ app.get('/cartoes', async (req, res) => {
   }
 });
 // Rota para criar um novo cartão
-app.post('/cartoes', async (req, res) => {
+app.post('/cards', async (req, res) => {
   const { nome, valor, descricao, imagem } = req.body;
   if (!nome) {
     res.status(400).json({ message: 'nome do cartão e obrig' });
@@ -63,7 +63,7 @@ app.post('/cartoes', async (req, res) => {
     console.log('nao');
   } else {
     try {
-      const novoCartao = await db.collection('cartoes').add({
+      const novoCartao = await db.collection('cards').add({
         nome,
         valor,
         imagem,
@@ -76,20 +76,20 @@ app.post('/cartoes', async (req, res) => {
       console.log('erro ao cadastrar', error);
       res.status(500).json({ error: 'erro ao cadastrar' });
     }
-    cartoes.push({ nome, valor: valor, imagem: imagem, descricao: descricao });
+    cards.push({ nome, valor: valor, imagem: imagem, descricao: descricao });
     res.status(201).json({ mensagem: 'Cartão criado' }); // Retorna o novo cartão criado
   }
 });
 
 // Rota para atualizar um cartão existente
-app.put('/cartoes', async (req, res) => {
+app.put('/cards', async (req, res) => {
   const { cartao, nome, valor, imagem, descricao } = req.body;
   if (!id) {
     res.status(400).json({ message: 'id do cartão não fornecido' });
     console.log('nao');
   } else{
       try {
-        const cartaoRef = db.collection('cartoes').doc(id);
+        const cartaoRef = db.collection('cards').doc(id);
         const doc = await cartaoRef.get();
         if (!doc.exists) {
           res.status(400).json({ message: 'cartão com id' + id + 'inexistente' });
@@ -115,7 +115,7 @@ app.put('/cartoes', async (req, res) => {
 });
 
 // Rota para excluir um cartão existente
-app.delete('/cartoes', async (req, res) => {
+app.delete('/cards', async (req, res) => {
   const id = req.body.cartao;
 
   if (!id) {
@@ -123,7 +123,7 @@ app.delete('/cartoes', async (req, res) => {
     console.log('nao');
   } else {
     try {
-      const cartaoRef = db.collection('cartoes').doc(id);
+      const cartaoRef = db.collection('cards').doc(id);
       const doc = await cartaoRef.get();
       if (!doc.exists) {
         res.status(400).json({ message: 'cartão com id' + cartao + 'inexistente' });
