@@ -17,136 +17,125 @@ const serviceAccount = {
 };
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount)
 });
 
-const db = admin.firestore(); //ela conytrola o BD
-
 const app = express();
-/* const porta = 3000; */
+const db = admin.firestore();
 
 app.use(cors());
 app.use(express.json());
 
-// Modificação na rota raiz para retornar o vetor de cartões
-
-// Rota específica para obter os cartões (opcional, pois agora também está na rota '/')
 app.get('/cartoes', async (req, res) => {
   try {
-    const response = await db.collection('cartoes').get();
-    const cartoes = response.docs.map(doc => doc.data({
-      id: doc.id, ...doc.data()
+    const response = await db.collection('bolso').get();
+    const cartoes = response.docs.map(doc => ({
+      id: doc.id, ...doc.data(),
     }));
     console.log(cartoes);
-    res.status(200).json({ cartoes }); // Retorna o vetor de cartões
-    console.log('Cartões enviados'); // Mensagem de sucesso
+    res.status(200).json({ cartoes });
+    console.log('Cartões devolvidos com sucesso!');
   } catch (e) {
     console.log(e);
-    res.status(500).json({ error: 'erro' + e });
-    console.log('Erro' + e);
+    res.status(500).json({ menssagem: 'Erro ' + e });
+    console.log('Erro ao buscar dados' + e);
   }
 });
-// Rota para criar um novo cartão
+
 app.post('/cartoes', async (req, res) => {
-  const { nome, valor, descricao, imagem } = req.body;
-  if (!nome) {
-    res.status(400).json({ message: 'nome do cartão e obrig' });
-    console.log('nao');
-  } else if (!valor) {
-    res.status(400).json({ message: 'valor do cartão e obrig' });
-    console.log('nao');
-  } else if (!descricao) {
-    res.status(400).json({ message: 'descricao do cartão e obrig' });
-    console.log('nao');
-  } else if (!imagem) {
-    res.status(400).json({ message: 'imagem do cartão e obrig' });
-    console.log('nao');
+  const { lng, nome, img } = req.body;
+  if (!lng) {
+    res.status(400).json({ mensagem: 'Linguagem do cartão inválida!' });
+    console.log('Novo cartão não cadastrado, linguagem inválida!');
+  } else if (!nome) {
+    res.status(400).json({ mensagem: 'Nome do cartão inválido!' });
+    console.log('Novo cartão não cadastrado, nome inválido!');
+  } else if (!img) {
+    res.status(400).json({ mensagem: 'Imagem do cartão inválida!' });
+    console.log('Novo cartão não cadastrado, imagem inválida!');
   } else {
     try {
-      const novoCartao = await db.collection('cartoes').add({
-        nome,
-        valor,
-        imagem,
-        descricao,
+      const novoCartaoRef = await db.collection('bolso').add({
+        linguagem: lng, //propriedade diferente do nome da variavel
+        nome: nome,
+        img, //propriedade com mesmo nome da variavel
         criadoEm: admin.firestore.FieldValue.serverTimestamp()
       });
-      res.status(201).json({ message: "novo cartao com id", id: novoCartaoRef.id });
-      console.log('Cartão criado', novoCartaoRef.id);
+      res.status(201).json({
+        mensagem: 'Cartão cadastrado com sucesso!',
+        id: novoCartaoRef.id
+      });
+      console.log('Novo cartão cadastrado com ID:', novoCartaoRef.id);
     } catch (error) {
-      console.log('erro ao cadastrar', error);
-      res.status(500).json({ error: 'erro ao cadastrar' });
+      console.error('Erro ao cadastrar cartão:', error);
+      res.status(500).json({ mensagem: 'Erro ao cadastrar cartão' });
     }
-    cartoes.push({ nome, valor: valor, imagem: imagem, descricao: descricao });
-    res.status(201).json({ mensagem: 'Cartão criado' }); // Retorna o novo cartão criado
   }
 });
 
-// Rota para atualizar um cartão existente
-app.put('/cartoes', async (req, res) => {
-  const { cartao, nome, valor, imagem, descricao } = req.body;
-  if (!id) {
-    res.status(400).json({ message: 'id do cartão não fornecido' });
-    console.log('nao');
-  } else{
-      try {
-        const cartaoRef = db.collection('cartoes').doc(id);
-        const doc = await cartaoRef.get();
-        if (!doc.exists) {
-          res.status(400).json({ message: 'cartão com id' + id + 'inexistente' });
-          console.log('nao');
-      } else {
-        const dadosAtualizados = {};
-        if (nome) dadosAtualizados.nome = nome;
-        if (valor) dadosAtualizados.valor = valor;
-        if (imagem) dadosAtualizados.imagem = imagem;
-        if (descricao) dadosAtualizados.descricao = descricao;
-        await cartaoRef.update(dadosAtualizados);
-        res.status(200).json({
-          message: 'cartão com id' + id
-            + 'atualizado'
-        });
-        console.log('cartão com id' + id + 'atualizado');
-      }
-    } catch (e) {
-      console.log('erro', e);
-      res.status(500).json({ message: 'erro' });
-    }
-    }
-});
-
-// Rota para excluir um cartão existente
 app.delete('/cartoes', async (req, res) => {
   const id = req.body.cartao;
-
   if (!id) {
-    res.status(400).json({ message: 'id do cartão e obrig' });
-    console.log('nao');
+    res.status(400).json({ mensagem: 'ID do cartão não fornecido' });
+    console.log('ID do cartão não fornecido');
   } else {
     try {
-      const cartaoRef = db.collection('cartoes').doc(id);
+      const cartaoRef = db.collection('bolso').doc(id);
       const doc = await cartaoRef.get();
       if (!doc.exists) {
-        res.status(400).json({ message: 'cartão com id' + cartao + 'inexistente' });
-        console.log('nao');
+        res.status(404).json({
+          mensagem: 'Cartão com ID '
+            + cartao + ' não encontrado'
+        });
+        console.log('Cartão não encontrado');
       } else {
         await cartaoRef.delete();
         res.status(200).json({
-          message: 'cartão com id' + cartao
-            + 'deletado'
+          mensagem: 'Cartão com ID '
+            + cartao + ' deletado'
         });
-        console.log('cartão com id' + cartao + 'deletado');
+        console.log('Cartão com ID ' + cartao + ' deletado');
       }
-
     } catch (e) {
-      console.log('erro', e);
-      res.status(500).json({ message: 'erro' });
+      console.error('Erro ao deletar cartão:', e);
+      res.status(500).json({ mensagem: 'Erro ao deletar cartão' });
     }
   }
 });
 
+app.put('/cartoes', async (req, res) => {
+  const { linguagem, nome, img, id } = req.body;
+  if (!id) {
+    res.status(400).json({ mensagem: 'ID do cartão não fornecido' });
+    console.log('Cartão não atualizado, ID inválido.');
+  } else {
+    try {
+      const cartaoRef = db.collection('bolso').doc(id);
+      const doc = await cartaoRef.get();
+      if (!doc.exists) {
+        res.status(404).json({
+          mensagem: 'Cartão com ID '
+            + id + ' não encontrado'
+        });
+        console.log('Cartão não encontrado');
+      } else {
+        const dadosAtualizados = {};
+        if (linguagem) dadosAtualizados.linguagem = linguagem;
+        if (nome) dadosAtualizados.nome = nome;
+        if (img) dadosAtualizados.img = img;
+        await cartaoRef.update(dadosAtualizados);
+        res.status(200).json({
+          mensagem: 'Cartão com ID '
+            + id + ' atualizado'
+        });
+        console.log('Cartão com ID ' + id + ' atualizado');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar cartão:', error);
+      res.status(500).json({ mensagem: 'Erro ao atualizar cartão' });
+    }
+  }
+});
 
 module.exports = app;
-
-  app.listen(3000, () => {
-    console.log('rodando na porta 3000');
-  });
+  
