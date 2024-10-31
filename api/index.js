@@ -56,7 +56,7 @@ app.post('/cartoes', async (req, res) => {
   } else {
     try {
       const novoCartaoRef = await db.collection('bolso').add({
-        linguagem: nome, //propriedade diferente do valor da variavel
+        nome: nome, //propriedade diferente do valor da variavel
         valor: valor,
         img, //propriedade com mesmo valor da variavel
         criadoEm: admin.firestore.FieldValue.serverTimestamp()
